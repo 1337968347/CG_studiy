@@ -1,0 +1,22 @@
+{
+  "name": "perlinnoise_water",
+  "version": "1.0.0",
+  "description": "图形学学习",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.4.4",
+    "webpack": "^5.61.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.4.0",
+    "@babel/core": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "@babel/preset-env": "7.16.0"
+  }
+}
