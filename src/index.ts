@@ -1,38 +1,28 @@
 import * as Scene from "../engine/scene";
 import { baseMesh } from "./mesh";
+import { WebGLRenderer } from "../engine/renderer";
 
 let camera: Scene.Camera;
 let scene: Scene.Graph;
-let renderer: Scene.WebGLRenderer;
+let renderer: WebGLRenderer;
 let material: Scene.Material;
-let mesh: Scene.Mesh;
+let mesh: Scene.SimpleMesh;
 
 init();
 
 function init() {
-  camera = new Scene.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    10
-  );
-  camera.position.x = 0;
-  camera.position.y = 0;
-  camera.position.z = 20;
+  camera = new Scene.Camera([]);
+  camera.position = new Float32Array([0, 0, 20]);
 
-  scene = new Scene.Scene();
+  scene = new Scene.Graph();
 
-  material = new Scene.MeshBasicMaterial({ color: 0xff0000 });
+  scene.append(mesh);
 
-  mesh = new Scene.Mesh(baseMesh(200), material);
-  scene.add(mesh);
-
-  renderer = new Scene.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight, true);
+  renderer = new WebGLRenderer();
   renderer.setAnimationLoop(animation);
   document.body.appendChild(renderer.domElement);
 }
 
-function animation(time: number) {
-  renderer.render(scene, camera);
+function animation(time: number, xrFrame: XRFrame) {
+  renderer.render(scene, camera, xrFrame);
 }

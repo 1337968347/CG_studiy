@@ -19,16 +19,16 @@ export class Node {
     this.children = childrenP;
   }
 
-  visit(scene: Graph, frame?: XRFrame) {
-    this.enter(scene, frame);
+  visit(scene: Graph, camera: Camera, xrFrame?: XRFrame) {
+    this.enter(scene, camera, xrFrame);
     for (let i = 0; i < this.children.length; i++) {
-      this.children[i].visit(scene, frame);
+      this.children[i].visit(scene, camera, xrFrame);
     }
-    this.exit(scene, frame);
+    this.exit(scene, camera, xrFrame);
   }
 
   // overwrite
-  exit(_scene: Graph, _frame?: XRFrame) {
+  exit(_scene: Graph, _camera: Camera, _xrFrame: XRFrame) {
     // console.log(scene);
   }
 
@@ -37,7 +37,7 @@ export class Node {
   }
 
   // overwrite
-  enter(_scene: Graph, _frame?: XRFrame) {
+  enter(_scene: Graph, _camera: Camera, _xrFrame: XRFrame) {
     // console.log(scene);
   }
 }
@@ -47,58 +47,29 @@ export class Graph {
   root: Node;
   uniforms: UniformMap = {};
   shaders: Shader[] = [];
+  textureUnit: number = 0;
   public viewport = {
     x: 0,
     y: 0,
     width: 640,
     height: 480,
   };
-  textureUnit: number = 0;
-  camera: Camera;
-  webXr: WebXr;
-  view: XRView;
 
-  constructor(xRSession: XRSession) {
+  constructor() {
     this.gl = getGL();
-    this.attempWebXRInit(xRSession);
     this.root = new Node();
   }
 
-  attempWebXRInit(xRSession: XRSession) {
-    if (xRSession) {
-      this.webXr = new WebXr(xRSession, this.gl);
-    }
+  append(node: Node) {
+    this.root.append(node);
   }
 
-  draw(frame?: XRFrame) {
+  draw(camera: Camera, xrFrame?: XRFrame) {
     const gl = this.gl;
-    gl.viewport(
-      this.viewport.x,
-      this.viewport.y,
-      this.viewport.width,
-      this.viewport.height
-    );
     gl.clearColor(0, 0, 0, 1);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (frame) {
-      const eyes = frame.getViewerPose(this.webXr.XRReferenceSpace);
-      let baseLayer = frame.session.renderState.baseLayer;
-      for (let view of eyes.views) {
-        let i = baseLayer.getViewport(view);
-        this.viewport = {
-          x: i.x,
-          y: i.y,
-          width: i.width,
-          height: i.height,
-        };
-        gl.viewport(i.x, i.y, i.width, i.height);
-        this.setCurrentView(view);
-        this.root.visit(this, frame);
-      }
-    } else {
-      this.root.visit(this, frame);
-    }
+    this.root.visit(this, camera, xrFrame);
   }
 
   pushUniforms() {
@@ -117,27 +88,6 @@ export class Graph {
     this.textureUnit--;
   }
 
-  getWebXR() {
-    return this.webXr;
-  }
-
-  setCamera(camera: Camera) {
-    this.camera = camera;
-  }
-
-  getCamera() {
-    return this.camera;
-  }
-
-  // 对VR来说 每双眼睛需要生成一帧不同的图像
-  setCurrentView(view: any) {
-    this.view = view;
-  }
-
-  getCurrentView() {
-    return this.view;
-  }
-
   pushShader(shader: Shader) {
     this.shaders.push(shader);
   }
@@ -150,6 +100,7 @@ export class Graph {
     return this.shaders[this.shaders.length - 1];
   }
 }
+
 // 渲染场景到FrameBufferObject上
 export class RenderTarget extends Node {
   fbo: FrameBufferObject;
@@ -202,7 +153,7 @@ export class Material extends Node {
   }
 }
 
-export class Camera extends Node {
+export class Camera {
   gl: WebGLRenderingContext;
   children: Node[] = [];
   position: Float32Array;
@@ -211,30 +162,25 @@ export class Camera extends Node {
   near: number = 0.5;
   far: number = 5000;
   fov: number = 50;
-  view: XRView;
 
   constructor(children: Node[]) {
-    super();
     this.children = children;
     this.gl = getGL();
     this.position = vec3.create([0, 0, 0]);
   }
 
-  enter(scene: Graph, frame: XRFrame) {
+  use(scene: Graph, xrView?: XRView) {
     scene.pushUniforms();
-    if (frame) {
-      this.view = scene.getCurrentView();
-    }
-    const mergePosition = this.getMergePosition();
-    const project = this.getProjection(scene);
-    const wordView = this.getWorldView();
+    const position = xrView
+      ? this.getXRPosition(xrView)
+      : new Float32Array(this.position);
+
+    const project = this.getProjection(scene, xrView);
+    const wordView = this.getWorldView(xrView);
     const mvp = mat4.create();
     mat4.multiply(project, wordView, mvp);
     scene.uniforms.projection = uniform.Mat4(mvp);
-    scene.uniforms.eye = uniform.Vec3(mergePosition);
-  }
-
-  exit(scene: Graph) {
+    scene.uniforms.eye = uniform.Vec3(position);
     scene.popUniforms();
   }
 
@@ -247,15 +193,12 @@ export class Camera extends Node {
   }
 
   // VR 移动的距离加手柄移动的距离
-  getMergePosition() {
-    if (this.view) {
-      return new Float32Array([
-        this.view.transform.position.x * 200 + this.position[0],
-        this.view.transform.position.y * 200 + this.position[1],
-        this.view.transform.position.z * 200 + this.position[2],
-      ]);
-    }
-    return new Float32Array(this.position);
+  getXRPosition(xrView?: XRView) {
+    return new Float32Array([
+      xrView.transform.position.x * 200 + this.position[0],
+      xrView.transform.position.y * 200 + this.position[1],
+      xrView.transform.position.z * 200 + this.position[2],
+    ]);
   }
 
   project(point: Float32Array, scene: Graph) {
@@ -271,26 +214,24 @@ export class Camera extends Node {
   }
 
   // project
-  getProjection(scene: Graph) {
-    if (this.view) {
-      return this.view.projectionMatrix;
+  getProjection(scene: Graph, xrView?: XRView) {
+    if (xrView) {
+      return xrView.projectionMatrix;
     }
-    return mat4.perspective(
-      this.fov,
-      scene.viewport.width / scene.viewport.height,
-      this.near,
-      this.far
-    );
+    return mat4.perspective(this.fov, 1, this.near, this.far);
   }
 
   // ModelView
-  getWorldView() {
-    const mergePosition = this.getMergePosition();
-    if (this.view) {
+  getWorldView(xrView?: XRView) {
+    const position = xrView
+      ? this.getXRPosition(xrView)
+      : new Float32Array(this.position);
+
+    if (xrView) {
       const modeView = mat4.create();
       mat4.translate(
-        mat3.toMat4(mat4.toInverseMat3(this.view.transform.matrix)),
-        vec3.negate(mergePosition, vec3.create()),
+        mat3.toMat4(mat4.toInverseMat3(xrView.transform.matrix)),
+        vec3.negate(position, vec3.create()),
         modeView
       );
 
@@ -301,7 +242,7 @@ export class Camera extends Node {
     const matrix = mat4.identity(mat4.create());
     mat4.rotateX(matrix, this.x);
     mat4.rotateY(matrix, this.y);
-    mat4.translate(matrix, vec3.negate(mergePosition, vec3.create()));
+    mat4.translate(matrix, vec3.negate(position, vec3.create()));
     return matrix;
   }
 }
@@ -377,23 +318,20 @@ export class Mirror extends Transform {
   }
 }
 
-export class CameraFixTransform extends Transform {
+export class CameraFixTransform extends Node {
   wordMatrix = mat4.create();
 
   constructor(children: Node[]) {
     super(children);
     this.children = children;
+    mat4.identity(this.wordMatrix);
   }
 
-  enter(scene: Graph) {
+  enter(scene: Graph, camera: Camera) {
     scene.pushUniforms();
     // 相机标架
     const aux = mat4.create();
-    mat4.multiply(
-      mat4.inverse(scene.getCamera().getWorldView()),
-      this.wordMatrix,
-      aux
-    );
+    mat4.multiply(mat4.inverse(camera.getWorldView()), this.wordMatrix, aux);
     scene.uniforms.modelTransform = uniform.Mat4(aux);
   }
 
@@ -448,18 +386,13 @@ export class PostProcess extends Node {
 }
 
 export class WebVrRenderTarget extends Node {
-  enter(scene: Graph, frame: XRFrame) {
-    if (frame) {
-      const webXR = scene.getWebXR();
-      webXR.bind();
-    }
+  enter(scene: Graph, _camera: Camera, xrFrame: XRFrame) {
+    let baseLayer = xrFrame.session.renderState.baseLayer;
+    scene.gl.bindFramebuffer(scene.gl.FRAMEBUFFER, baseLayer.framebuffer);
   }
 
-  exit(scene: Graph, frame: XRFrame) {
-    if (frame) {
-      const webXR = scene.getWebXR();
-      webXR.unbind();
-    }
+  exit(scene: Graph) {
+    scene.gl.bindFramebuffer(scene.gl.FRAMEBUFFER, null);
   }
 }
 
