@@ -20,6 +20,7 @@ function init() {
 
   renderer = new WebGLRenderer();
   renderer.setAnimationLoop(animation);
+  renderer.start();
   document.body.appendChild(renderer.domElement);
 }
 

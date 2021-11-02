@@ -80,6 +80,16 @@ export class WebGLRenderer {
     });
   }
 
+  start() {
+    this.clock.start();
+  }
+
+  stop() {
+    if (this.clock.isRunning) {
+      this.clock.stop();
+    }
+  }
+
   setAnimationLoop(aniLoop: Function) {
     this.clock.setAnimationLoop(aniLoop);
   }
