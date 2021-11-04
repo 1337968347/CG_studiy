@@ -1,5 +1,6 @@
 import * as Scene from "../engine/scene";
 import { mat4, vec3 } from "./MV";
+import { setCanvasFullScreen } from "./glUtils";
 
 const KEYNAME = {
   32: "SPACE",
@@ -217,13 +218,8 @@ export class Clock {
   timerId: number | null = null;
   onTick: Function;
   loopFunc: Function;
-  webXRSession?: XRSession;
 
-  constructor(xRSession?: XRSession) {
-    if (xRSession) {
-      this.webXRSession = xRSession;
-    }
-  }
+  constructor() {}
 
   start() {
     if (this.isRunning) return;
@@ -236,13 +232,11 @@ export class Clock {
     };
 
     // raf
-    this.loopFunc = this.webXRSession
-      ? this.webXRSession.requestAnimationFrame
-      : window.requestAnimationFrame || timerLoop;
+    this.loopFunc = window.requestAnimationFrame.bind(window) || timerLoop;
 
-    const animationFunc = (time: number, frame: XRFrame) => {
+    const animationFunc = (time: number) => {
       if (this.isRunning) {
-        this.tick(time, frame);
+        this.tick(time);
         this.loopFunc(animationFunc);
       }
     };
@@ -257,15 +251,10 @@ export class Clock {
       clearTimeout(this.timerId);
       this.timerId = null;
     }
-
-    if (this.webXRSession) {
-      this.webXRSession.end();
-      this.webXRSession = undefined;
-    }
   }
 
-  tick(tickTime: number, xrFrame: XRFrame) {
-    this.onTick && this.onTick((tickTime - this.now) / 1000, xrFrame);
+  tick(tickTime: number) {
+    this.onTick && this.onTick((tickTime - this.now) / 1000);
     this.now = tickTime;
   }
 
@@ -279,12 +268,15 @@ export class WebGLRenderer {
   domElement: HTMLCanvasElement;
   cameraController: CameraController;
   inputHandler: InputHandler;
-  gl: WebGL2RenderingContext;
+  gl: WebGLRenderingContext;
 
-  constructor(xrSession?: XRSession) {
-    this.clock = new Clock(xrSession);
+  constructor() {
+    this.clock = new Clock();
     this.domElement = document.createElement("canvas");
-    this.gl = this.domElement.getContext("webgl2");
+
+    this.gl = this.domElement.getContext("webgl");
+
+
     this.inputHandler = new InputHandler(this.domElement);
     this.cameraController = new CameraController(this.inputHandler);
   }
@@ -299,6 +291,10 @@ export class WebGLRenderer {
     }
   }
 
+  getGLRenderContext() {
+    return this.gl;
+  }
+
   setAnimationLoop(aniLoop: Function) {
     this.clock.setAnimationLoop(aniLoop);
   }
@@ -306,6 +302,6 @@ export class WebGLRenderer {
   render(scene: Scene.Graph, camera: Scene.Camera) {
     this.cameraController.tick(camera);
     camera.use(scene);
-    scene.draw(camera);
+    scene.draw(camera, this.gl);
   }
 }

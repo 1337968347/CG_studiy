@@ -1,33 +1,87 @@
-import * as Scene from './scene';
-let globalGL: WebGLRenderingContext;
+import * as Scene from "./scene";
+import { GlValue } from "../interface";
 
-export const getGL = (canvas?: HTMLCanvasElement) => {
-  if (!globalGL) {
-    if (!canvas) canvas = document.querySelector('canvas');
-    if (!canvas) return null;
-    globalGL = canvas.getContext('webgl2', { xrCompatible: true }) as WebGLRenderingContext;
-    globalGL.enable(globalGL.DEPTH_TEST);
-    globalGL.enable(globalGL.CULL_FACE);
-  }
-  return globalGL;
+const createGlValue = (set, value) => {
+  const setValue = (value): GlValue => {
+    const uniform = (location) => {
+      set(location, value);
+    };
+    return { uniform, value };
+  };
+  return setValue(value);
 };
 
+export const Mat4 = (value) => {
+  return createGlValue(
+    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+      gl.uniformMatrix4fv(location, false, value);
+    },
+    value
+  );
+};
+
+export const Mat3 = (value) => {
+  return createGlValue(
+    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+      gl.uniformMatrix3fv(location, false, value);
+    },
+    value
+  );
+};
+
+export const Vec3 = (value) => {
+  return createGlValue(
+    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+      gl.uniform3fv(location, value);
+    },
+    value
+  );
+};
+
+export const Vec4 = (value) => {
+  return createGlValue(
+    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+      gl.uniform4fv(location, value);
+    },
+    value
+  );
+};
+
+export const Int = (value) => {
+  return createGlValue(
+    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+      gl.uniform1i(location, value);
+    },
+    value
+  );
+};
+
+export const uniform = {
+  Mat4,
+  Mat3,
+  Vec3,
+  Vec4,
+  Int,
+};
 export class Texture2D {
   gl: WebGLRenderingContext;
   texture: WebGLTexture;
   image: HTMLImageElement;
   unit: number = -1;
 
-  constructor(image: HTMLImageElement) {
+  constructor(image: HTMLImageElement, gl: WebGLRenderingContext) {
     this.image = image;
-    this.gl = getGL();
+    this.gl = gl;
     this.texture = this.gl.createTexture();
     this.bindTexture();
-    const gl = this.gl;
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_LINEAR
+    );
     gl.generateMipmap(gl.TEXTURE_2D);
   }
 
@@ -52,16 +106,21 @@ export class Texture2D {
 export class FrameBufferObject {
   width: number;
   height: number;
-  gl: WebGLRenderingContext = getGL();
+  gl: WebGLRenderingContext;
   frameBuffer: WebGLFramebuffer;
   texture: WebGLTexture;
   depth: WebGLRenderbuffer;
   unit = -1;
 
-  constructor(width: number, height: number, format?: number) {
+  constructor(
+    gl: WebGLRenderingContext,
+    width: number,
+    height: number,
+    format?: number
+  ) {
     this.width = width;
     this.height = height;
-    const gl = this.gl;
+    this.gl = gl;
     // FBO 对帧缓存进行操作
     this.frameBuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
@@ -69,7 +128,17 @@ export class FrameBufferObject {
     this.texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     // 创建一个空的纹理
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, format || gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      format || gl.UNSIGNED_BYTE,
+      null
+    );
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -80,10 +149,26 @@ export class FrameBufferObject {
     this.depth = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth);
     // 创建并初始化渲染缓冲区对象的数据存储。
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+    gl.renderbufferStorage(
+      gl.RENDERBUFFER,
+      gl.DEPTH_COMPONENT16,
+      width,
+      height
+    );
     // 将纹理对象关联到FBO
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      this.texture,
+      0
+    );
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_ATTACHMENT,
+      gl.RENDERBUFFER,
+      this.depth
+    );
 
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -125,8 +210,8 @@ export class BufferObject {
   buffer: WebGLBuffer;
   length: number;
   location: number;
-  constructor(vertexData: Float32Array) {
-    this.gl = getGL();
+  constructor(vertexData: Float32Array, gl: WebGLRenderingContext) {
+    this.gl = gl;
     this.buffer = this.gl.createBuffer();
     this.bind();
     this.length = vertexData.length;
@@ -139,7 +224,14 @@ export class BufferObject {
     const stride = 0;
     const offset = 0;
     const normalized = false;
-    this.gl.vertexAttribPointer(this.location, 3, this.gl.FLOAT, normalized, stride, offset);
+    this.gl.vertexAttribPointer(
+      this.location,
+      3,
+      this.gl.FLOAT,
+      normalized,
+      stride,
+      offset
+    );
     this.gl.enableVertexAttribArray(this.location);
   }
 
@@ -152,8 +244,8 @@ export class VertexBufferObject extends BufferObject {
   buffer: WebGLBuffer;
   length: number;
   location: number;
-  constructor(vertexData: Float32Array) {
-    super(vertexData);
+  constructor(vertexData: Float32Array, gl: WebGLRenderingContext) {
+    super(vertexData, gl);
   }
 
   drawTriangles() {
@@ -163,8 +255,8 @@ export class VertexBufferObject extends BufferObject {
 
 // 获取图片的RGBA数组
 export const getImageData = (imageEl: HTMLImageElement) => {
-  const canvasEl = document.createElement('canvas');
-  const ctx = canvasEl.getContext('2d');
+  const canvasEl = document.createElement("canvas");
+  const ctx = canvasEl.getContext("2d");
   canvasEl.width = imageEl.width;
   canvasEl.height = imageEl.height;
   ctx.drawImage(imageEl, 0, 0);
@@ -181,12 +273,14 @@ export const sampleHeight = (imgData: ImageData, u: number, v: number) => {
   return imgData.data[i] / 255;
 };
 
-export const setCanvasFullScreen = (canvas: HTMLCanvasElement, scene: Scene.Graph) => {
+export const setCanvasFullScreen = (
+  canvas: HTMLCanvasElement,
+  scene: Scene.Graph
+) => {
   const onResize = () => {
     canvas.width = scene.viewport.width = window.innerWidth;
     canvas.height = scene.viewport.height = window.innerHeight;
-    scene.draw();
   };
-  window.addEventListener('resize', onResize, false);
+  window.addEventListener("resize", onResize, false);
   onResize();
 };

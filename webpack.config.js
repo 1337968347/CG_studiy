@@ -1,3 +1,4 @@
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
 module.exports = {
@@ -24,6 +25,14 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "./src/shader", to: "shader", noErrorOnMissing: true },
+        { from: "./src/assets", to: "assets", noErrorOnMissing: true },
+      ],
+    }),
+  ],
   resolve: {
     extensions: [".ts", ".js"],
   },
