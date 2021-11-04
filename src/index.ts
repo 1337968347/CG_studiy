@@ -24,6 +24,6 @@ function init() {
   document.body.appendChild(renderer.domElement);
 }
 
-function animation(time: number, xrFrame: XRFrame) {
-  renderer.render(scene, camera, xrFrame);
+function animation(time: number) {
+  renderer.render(scene, camera);
 }
