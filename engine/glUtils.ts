@@ -209,7 +209,6 @@ export class BufferObject {
   gl: WebGLRenderingContext;
   buffer: WebGLBuffer;
   length: number;
-  location: number;
   constructor(vertexData: Float32Array, gl: WebGLRenderingContext) {
     this.gl = gl;
     this.buffer = this.gl.createBuffer();
@@ -221,18 +220,6 @@ export class BufferObject {
 
   bind() {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    const stride = 0;
-    const offset = 0;
-    const normalized = false;
-    this.gl.vertexAttribPointer(
-      this.location,
-      3,
-      this.gl.FLOAT,
-      normalized,
-      stride,
-      offset
-    );
-    this.gl.enableVertexAttribArray(this.location);
   }
 
   unbind() {
@@ -243,7 +230,6 @@ export class VertexBufferObject extends BufferObject {
   gl: WebGLRenderingContext;
   buffer: WebGLBuffer;
   length: number;
-  location: number;
   constructor(vertexData: Float32Array, gl: WebGLRenderingContext) {
     super(vertexData, gl);
   }

@@ -1,5 +1,5 @@
 import * as Scene from "../engine/scene";
-import { gird, screen_quad } from "../engine/mesh";
+import Mesh from "../engine/mesh";
 import { WebGLRenderer } from "../engine/renderer";
 import { VertexBufferObject, setCanvasFullScreen } from "../engine/glUtils";
 import Loader from "../engine/loader";
@@ -15,12 +15,10 @@ let shaderManager: ShaderManager;
 const gl = renderer.getGLRenderContext();
 
 loader = new Loader("./shader/");
-loader.load([ "terrain.vert", "terrain.frag"]);
+loader.load(["terrain.vert", "terrain.frag"]);
 loader.setOnRendy(init);
 
 function init() {
-  renderer = new WebGLRenderer();
-
   // 资源管理相关
 
   shaderManager = new ShaderManager(loader.resources, gl);
@@ -30,7 +28,7 @@ function init() {
   camera = new Scene.Camera();
   camera.position = new Float32Array([0, 0, 0]);
 
-  const moutainVBO = new VertexBufferObject(screen_quad(), gl);
+  const moutainVBO = new VertexBufferObject(Mesh.screen_quad(), gl);
 
   mesh = new Scene.SimpleMesh({ position: moutainVBO });
   material = new Scene.Material(terrainShader, {}, [mesh]);

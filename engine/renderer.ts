@@ -273,10 +273,9 @@ export class WebGLRenderer {
   constructor() {
     this.clock = new Clock();
     this.domElement = document.createElement("canvas");
+    this.gl = this.domElement.getContext('webgl2');
 
-    this.gl = this.domElement.getContext("webgl");
-
-
+    this.gl.enable(this.gl.DEPTH_TEST);
     this.inputHandler = new InputHandler(this.domElement);
     this.cameraController = new CameraController(this.inputHandler);
   }
@@ -301,7 +300,6 @@ export class WebGLRenderer {
 
   render(scene: Scene.Graph, camera: Scene.Camera) {
     this.cameraController.tick(camera);
-    camera.use(scene);
     scene.draw(camera, this.gl);
   }
 }

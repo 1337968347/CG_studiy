@@ -1,7 +1,5 @@
 precision highp float;
 
-varying vec3 worldPosition;
-varying float depth;
 
 void main() {
 

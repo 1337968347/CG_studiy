@@ -62,7 +62,12 @@ export class Graph {
   }
 
   draw(camera: Camera, gl: WebGLRenderingContext) {
-    gl.viewport(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);
+    gl.viewport(
+      this.viewport.x,
+      this.viewport.y,
+      this.viewport.width,
+      this.viewport.height
+    );
     gl.clearColor(0, 0, 0, 1);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -216,12 +221,20 @@ export class SimpleMesh extends Node {
     this.bufferGeometry = BufferGeometry;
   }
 
-  visit(scene: Graph) {
+  visit(scene: Graph, _camera: Camera, gl: WebGLRenderingContext) {
     const shader = scene.getShader();
     shader.uniforms(scene.uniforms);
     for (const name of Object.keys(this.bufferGeometry)) {
       const bufferObject = this.bufferGeometry[name];
       bufferObject.bind();
+
+      const location = shader.getAttribLocation(name);
+      const stride = 0;
+      const offset = 0;
+      const normalized = false;
+      gl.vertexAttribPointer(location, 3, gl.FLOAT, normalized, stride, offset);
+      gl.enableVertexAttribArray(location);
+
       if (bufferObject instanceof VertexBufferObject) {
         bufferObject.drawTriangles();
       }
@@ -338,11 +351,7 @@ export class Uniforms extends Node {
 
 export class PostProcess extends Node {
   children: Node[];
-  constructor(
-    shader: Shader,
-    uniforms: UniformMap,
-    gl: WebGLRenderingContext
-  ) {
+  constructor(shader: Shader, uniforms: UniformMap, gl: WebGLRenderingContext) {
     super();
     const screenVbo = new VertexBufferObject(Mesh.screen_quad(), gl);
     const mesh = new SimpleMesh({ position: screenVbo });
@@ -353,11 +362,7 @@ export class PostProcess extends Node {
 
 export class Skybox extends Node {
   children: Node[];
-  constructor(
-    shader: Shader,
-    uniforms: UniformMap,
-    gl: WebGLRenderingContext
-  ) {
+  constructor(shader: Shader, uniforms: UniformMap, gl: WebGLRenderingContext) {
     super();
 
     const skyVbo = new VertexBufferObject(Mesh.cute(), gl);
