@@ -1,8 +1,8 @@
 import { Texture2D, FrameBufferObject } from "./engine/glUtils";
 
 export interface GlValue {
-  uniform: (location: any, gl: WebGLRenderingContext) => void;
-  value: any;
+  uniform: (location: WebGLUniformLocation, gl: WebGLRenderingContext) => void;
+  value: Float32Array | Number;
 }
 
 export interface UniformMap {

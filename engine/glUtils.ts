@@ -1,14 +1,17 @@
 import * as Scene from "./scene";
 import { GlValue } from "../interface";
 
-const createGlValue = (set, value) => {
-  const setValue = (value): GlValue => {
-    const uniform = (location) => {
-      set(location, value);
+const createGlValue = (set, value: Float32Array | Number) => {
+  const setValue = (): GlValue => {
+    const uniform = (
+      location: WebGLUniformLocation,
+      gl: WebGLRenderingContext
+    ) => {
+      set(location, gl);
     };
     return { uniform, value };
   };
-  return setValue(value);
+  return setValue();
 };
 
 export const Mat4 = (value) => {
@@ -66,16 +69,16 @@ export const uniform = {
 export class Texture2D {
   gl: WebGLRenderingContext;
   texture: WebGLTexture;
-  image: HTMLImageElement;
+  source: TexImageSource;
   unit: number = -1;
 
-  constructor(image: HTMLImageElement, gl: WebGLRenderingContext) {
-    this.image = image;
+  constructor(source: TexImageSource, gl: WebGLRenderingContext) {
+    this.source = source;
     this.gl = gl;
     this.texture = this.gl.createTexture();
     this.bindTexture();
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(
       gl.TEXTURE_2D,
@@ -226,6 +229,7 @@ export class BufferObject {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
 }
+
 export class VertexBufferObject extends BufferObject {
   gl: WebGLRenderingContext;
   buffer: WebGLBuffer;

@@ -10,15 +10,15 @@ export const gird = (size: number) => {
       buffer[i++] = y / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = y / size;
 
       buffer[i++] = (x + 1) / size;
@@ -26,7 +26,7 @@ export const gird = (size: number) => {
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = y / size;
     }
   }
@@ -292,4 +292,26 @@ export const makePerlinNoise = (seed: number) => {
   return { getUVPixel };
 };
 
-export default { gird, cute, wireFrame, screen_quad, makePerlinNoise };
+const getNoiseImageData = (size: number) => {
+  const noise = makePerlinNoise(123);
+  const imageData = new Uint8ClampedArray(size * size * 4);
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      const p = noise.getUVPixel(i / 30, j / 30);
+      imageData[(i * size + j) * 4 + 0] = 0;
+      imageData[(i * size + j) * 4 + 1] = 0;
+      imageData[(i * size + j) * 4 + 2] = 0;
+      imageData[(i * size + j) * 4 + 3] = (1 - p) * 255;
+    }
+  }
+  return new ImageData(imageData, size, size);
+};
+
+export default {
+  gird,
+  cute,
+  wireFrame,
+  screen_quad,
+  makePerlinNoise,
+  getNoiseImageData,
+};

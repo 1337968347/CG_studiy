@@ -1,5 +1,10 @@
 attribute vec3 position;
 
+varying vec4 projected;
+
+/// import "transform.glsl"
+
 void main() {
-    gl_Position = vec4(position, 1.0);
+    transform(position);
+    projected = gl_Position;
 }
