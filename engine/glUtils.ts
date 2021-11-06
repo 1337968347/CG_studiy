@@ -1,12 +1,9 @@
-import * as Scene from "./scene";
-import { GlValue } from "../interface";
+import * as Scene from './scene';
+import { GlValue } from '../interface';
 
 const createGlValue = (set, value: Float32Array | Number) => {
   const setValue = (): GlValue => {
-    const uniform = (
-      location: WebGLUniformLocation,
-      gl: WebGLRenderingContext
-    ) => {
+    const uniform = (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
       set(location, gl);
     };
     return { uniform, value };
@@ -15,48 +12,33 @@ const createGlValue = (set, value: Float32Array | Number) => {
 };
 
 export const Mat4 = (value) => {
-  return createGlValue(
-    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
-      gl.uniformMatrix4fv(location, false, value);
-    },
-    value
-  );
+  return createGlValue((location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+    gl.uniformMatrix4fv(location, false, value);
+  }, value);
 };
 
 export const Mat3 = (value) => {
-  return createGlValue(
-    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
-      gl.uniformMatrix3fv(location, false, value);
-    },
-    value
-  );
+  return createGlValue((location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+    gl.uniformMatrix3fv(location, false, value);
+  }, value);
 };
 
 export const Vec3 = (value) => {
-  return createGlValue(
-    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
-      gl.uniform3fv(location, value);
-    },
-    value
-  );
+  return createGlValue((location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+    gl.uniform3fv(location, value);
+  }, value);
 };
 
 export const Vec4 = (value) => {
-  return createGlValue(
-    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
-      gl.uniform4fv(location, value);
-    },
-    value
-  );
+  return createGlValue((location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+    gl.uniform4fv(location, value);
+  }, value);
 };
 
 export const Int = (value) => {
-  return createGlValue(
-    (location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
-      gl.uniform1i(location, value);
-    },
-    value
-  );
+  return createGlValue((location: WebGLUniformLocation, gl: WebGLRenderingContext) => {
+    gl.uniform1i(location, value);
+  }, value);
 };
 
 export const uniform = {
@@ -80,11 +62,7 @@ export class Texture2D {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(
-      gl.TEXTURE_2D,
-      gl.TEXTURE_MIN_FILTER,
-      gl.LINEAR_MIPMAP_LINEAR
-    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.generateMipmap(gl.TEXTURE_2D);
   }
 
@@ -115,12 +93,7 @@ export class FrameBufferObject {
   depth: WebGLRenderbuffer;
   unit = -1;
 
-  constructor(
-    gl: WebGLRenderingContext,
-    width: number,
-    height: number,
-    format?: number
-  ) {
+  constructor(gl: WebGLRenderingContext, width: number, height: number, format?: number) {
     this.width = width;
     this.height = height;
     this.gl = gl;
@@ -131,17 +104,7 @@ export class FrameBufferObject {
     this.texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     // 创建一个空的纹理
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      width,
-      height,
-      0,
-      gl.RGBA,
-      format || gl.UNSIGNED_BYTE,
-      null
-    );
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, format || gl.UNSIGNED_BYTE, null);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -152,26 +115,10 @@ export class FrameBufferObject {
     this.depth = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth);
     // 创建并初始化渲染缓冲区对象的数据存储。
-    gl.renderbufferStorage(
-      gl.RENDERBUFFER,
-      gl.DEPTH_COMPONENT16,
-      width,
-      height
-    );
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
     // 将纹理对象关联到FBO
-    gl.framebufferTexture2D(
-      gl.FRAMEBUFFER,
-      gl.COLOR_ATTACHMENT0,
-      gl.TEXTURE_2D,
-      this.texture,
-      0
-    );
-    gl.framebufferRenderbuffer(
-      gl.FRAMEBUFFER,
-      gl.DEPTH_ATTACHMENT,
-      gl.RENDERBUFFER,
-      this.depth
-    );
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth);
 
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -245,8 +192,8 @@ export class VertexBufferObject extends BufferObject {
 
 // 获取图片的RGBA数组
 export const getImageData = (imageEl: HTMLImageElement) => {
-  const canvasEl = document.createElement("canvas");
-  const ctx = canvasEl.getContext("2d");
+  const canvasEl = document.createElement('canvas');
+  const ctx = canvasEl.getContext('2d');
   canvasEl.width = imageEl.width;
   canvasEl.height = imageEl.height;
   ctx.drawImage(imageEl, 0, 0);
@@ -263,14 +210,11 @@ export const sampleHeight = (imgData: ImageData, u: number, v: number) => {
   return imgData.data[i] / 255;
 };
 
-export const setCanvasFullScreen = (
-  canvas: HTMLCanvasElement,
-  scene: Scene.Graph
-) => {
+export const setCanvasFullScreen = (canvas: HTMLCanvasElement, scene: Scene.Graph) => {
   const onResize = () => {
     canvas.width = scene.viewport.width = window.innerWidth;
     canvas.height = scene.viewport.height = window.innerHeight;
   };
-  window.addEventListener("resize", onResize, false);
+  window.addEventListener('resize', onResize, false);
   onResize();
 };

@@ -1,15 +1,9 @@
-import * as Mesh from "./mesh";
-import { mat3, mat4, vec3, vec4 } from "./MV";
-import {
-  VertexBufferObject,
-  Texture2D,
-  FrameBufferObject,
-  BufferObject,
-  uniform,
-} from "./glUtils";
+import * as Mesh from './mesh';
+import { mat3, mat4, vec3, vec4 } from './MV';
+import { VertexBufferObject, Texture2D, FrameBufferObject, BufferObject, uniform } from './glUtils';
 
-import { Shader } from "./shader";
-import { UniformMap } from "../interface";
+import { Shader } from './shader';
+import { UniformMap } from '../interface';
 
 export class Node {
   children: Node[] = [];
@@ -62,12 +56,7 @@ export class Graph {
   }
 
   draw(camera: Camera, gl: WebGLRenderingContext) {
-    gl.viewport(
-      this.viewport.x,
-      this.viewport.y,
-      this.viewport.width,
-      this.viewport.height
-    );
+    gl.viewport(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);
     gl.clearColor(0, 0, 0, 1);
     gl.clearDepth(1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -121,12 +110,7 @@ export class RenderTarget extends Node {
 
   exit(scene: Graph, _camera: Camera, gl: WebGLRenderingContext) {
     this.fbo.unbind();
-    gl.viewport(
-      scene.viewport.x,
-      scene.viewport.y,
-      scene.viewport.width,
-      scene.viewport.height
-    );
+    gl.viewport(scene.viewport.x, scene.viewport.y, scene.viewport.width, scene.viewport.height);
   }
 }
 
@@ -261,11 +245,7 @@ export class Transform extends Node {
   enter(scene: Graph, _camera: Camera, _gl: WebGLRenderingContext) {
     scene.pushUniforms();
     if (scene.uniforms.modelTransform) {
-      mat4.multiply(
-        (scene.uniforms.modelTransform as any).value,
-        this.wordMatrix,
-        this.aux
-      );
+      mat4.multiply((scene.uniforms.modelTransform as any).value, this.wordMatrix, this.aux);
       scene.uniforms.modelTransform = uniform.Mat4(this.aux);
     } else {
       scene.uniforms.modelTransform = uniform.Mat4(this.wordMatrix);

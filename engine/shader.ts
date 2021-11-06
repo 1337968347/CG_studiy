@@ -1,4 +1,4 @@
-import { UniformMap } from "../interface";
+import { UniformMap } from '../interface';
 /**
  * 创建一个Shader
  * @param gl
@@ -6,11 +6,7 @@ import { UniformMap } from "../interface";
  * @param source
  * @returns
  */
-const makeShader = (
-  gl: WebGLRenderingContext,
-  shaderType: number,
-  source: string
-) => {
+const makeShader = (gl: WebGLRenderingContext, shaderType: number, source: string) => {
   const shader = gl.createShader(shaderType);
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
@@ -28,11 +24,7 @@ const makeShader = (
  * @param fragmentSource
  * @returns
  */
-const makeProgram = (
-  gl: WebGLRenderingContext,
-  vertexSource: string,
-  fragmentSource: string
-) => {
+const makeProgram = (gl: WebGLRenderingContext, vertexSource: string, fragmentSource: string) => {
   const vertexShader = makeShader(gl, gl.VERTEX_SHADER, vertexSource);
   const fragmentShader = makeShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
   const program = gl.createProgram();
@@ -41,7 +33,7 @@ const makeProgram = (
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    throw "Linker exception: " + gl.getProgramInfoLog(program);
+    throw 'Linker exception: ' + gl.getProgramInfoLog(program);
   }
   return program;
 };
@@ -58,11 +50,7 @@ export class Shader {
   program: WebGLProgram;
   uniformLocations: { [key: string]: WebGLUniformLocation } = {};
 
-  constructor(
-    gl: WebGLRenderingContext,
-    vertexSource: string,
-    fragmentSource: string
-  ) {
+  constructor(gl: WebGLRenderingContext, vertexSource: string, fragmentSource: string) {
     this.gl = gl;
     this.program = makeProgram(this.gl, vertexSource, fragmentSource);
   }
@@ -86,7 +74,7 @@ export class Shader {
       if (location === null) {
         continue;
       }
-      if (typeof value === "number") {
+      if (typeof value === 'number') {
         this.gl.uniform1f(location, value);
       } else {
         value.uniform(location, this.gl);
@@ -96,7 +84,7 @@ export class Shader {
 
   getAttribLocation(name: string) {
     const location = this.gl.getAttribLocation(this.program, name);
-    if (location < 0) throw "attribute not found";
+    if (location < 0) throw 'attribute not found';
     return location;
   }
 }
@@ -114,16 +102,12 @@ export class ShaderManager {
 
   get(vertex: string, frag?: string) {
     if (!frag) {
-      frag = vertex + ".frag";
-      vertex = vertex + ".vert";
+      frag = vertex + '.frag';
+      vertex = vertex + '.vert';
     }
     const key = `${vertex}-${frag}`;
     if (!(key in this.resources)) {
-      this.shaders[key] = new Shader(
-        this.gl,
-        this.getSource(vertex),
-        this.getSource(frag)
-      );
+      this.shaders[key] = new Shader(this.gl, this.getSource(vertex), this.getSource(frag));
     }
     return this.shaders[key];
   }
@@ -141,7 +125,7 @@ export class ShaderManager {
   }
 
   _getSourceName(name) {
-    const nameArr = name.split("/");
+    const nameArr = name.split('/');
     return nameArr[nameArr.length - 1];
   }
 }

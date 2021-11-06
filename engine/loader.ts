@@ -50,7 +50,7 @@ export default class Loader {
   }
 
   loadImage = (src: string) => {
-    const imageEl = document.createElement("img");
+    const imageEl = document.createElement('img');
     imageEl.src = this.rootPath + src;
     imageEl.onload = () => {
       this.success(src, imageEl);
@@ -94,7 +94,7 @@ export default class Loader {
     this.pendingStatus.pending--;
     this.pendingStatus.failed++;
     this.resources[src] = null;
-    if (typeof err !== "string") {
+    if (typeof err !== 'string') {
       err.path = src;
     }
     throw err;

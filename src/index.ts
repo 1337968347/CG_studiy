@@ -1,10 +1,10 @@
-import * as Scene from "../engine/scene";
-import Mesh, { makePerlinNoise } from "../engine/mesh";
-import { WebGLRenderer } from "../engine/renderer";
-import { VertexBufferObject, setCanvasFullScreen } from "../engine/glUtils";
-import Loader from "../engine/loader";
-import { ShaderManager } from "../engine/shader";
-import { mat3, mat4 } from "../engine/MV";
+import * as Scene from '../engine/scene';
+import Mesh, { makePerlinNoise } from '../engine/mesh';
+import { WebGLRenderer } from '../engine/renderer';
+import { VertexBufferObject, setCanvasFullScreen } from '../engine/glUtils';
+import Loader from '../engine/loader';
+import { ShaderManager } from '../engine/shader';
+import { mat3, mat4 } from '../engine/MV';
 
 let camera: Scene.Camera;
 let scene: Scene.Graph;
@@ -15,8 +15,8 @@ let loader: Loader;
 let shaderManager: ShaderManager;
 const gl = renderer.getGLRenderContext();
 
-loader = new Loader("./shader/");
-loader.load(["terrain.vert", "terrain.frag" , 'transform.glsl']);
+loader = new Loader('./shader/');
+loader.load(['terrain.vert', 'terrain.frag', 'transform.glsl']);
 loader.setOnRendy(init);
 
 function init() {
@@ -24,7 +24,7 @@ function init() {
 
   shaderManager = new ShaderManager(loader.resources, gl);
 
-  const terrainShader = shaderManager.get("terrain");
+  const terrainShader = shaderManager.get('terrain');
 
   camera = new Scene.Camera();
   camera.position = new Float32Array([0, 0, 0]);
@@ -47,10 +47,7 @@ function init() {
 
   function initModeView() {
     const FAR_AWAY = 100;
-    mat4.translate(
-      transform.wordMatrix,
-      new Float32Array([-0.5 * FAR_AWAY, 0, -0.5 * FAR_AWAY])
-    );
+    mat4.translate(transform.wordMatrix, new Float32Array([-0.5 * FAR_AWAY, 0, -0.5 * FAR_AWAY]));
     mat4.scale(transform.wordMatrix, new Float32Array([FAR_AWAY, 1, FAR_AWAY]));
   }
 }
