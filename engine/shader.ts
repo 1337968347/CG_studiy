@@ -63,7 +63,6 @@ export class Shader {
     for (let name in values) {
       const value = values[name];
       let location: WebGLUniformLocation;
-
       if (this.uniformLocations[name] !== undefined) {
         location = this.uniformLocations[name];
       } else {

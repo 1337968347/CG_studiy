@@ -10,15 +10,15 @@ export const gird = (size: number) => {
       buffer[i++] = y / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0.5;
+      buffer[i++] = 0;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0.5;
+      buffer[i++] = 0;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0.5;
+      buffer[i++] = 0;
       buffer[i++] = y / size;
 
       buffer[i++] = (x + 1) / size;
@@ -26,7 +26,7 @@ export const gird = (size: number) => {
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0.5;
+      buffer[i++] = 0;
       buffer[i++] = y / size;
     }
   }

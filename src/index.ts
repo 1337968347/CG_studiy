@@ -4,7 +4,7 @@ import { WebGLRenderer } from '../engine/renderer';
 import { VertexBufferObject, setCanvasFullScreen } from '../engine/glUtils';
 import Loader from '../engine/loader';
 import { ShaderManager } from '../engine/shader';
-import { mat3, mat4 } from '../engine/MV';
+import { mat4 } from '../engine/MV';
 
 let camera: Scene.Camera;
 let scene: Scene.Graph;
@@ -27,9 +27,9 @@ function init() {
   const terrainShader = shaderManager.get('terrain');
 
   camera = new Scene.Camera();
-  camera.position = new Float32Array([0, 0, 0]);
+  camera.position = new Float32Array([0, 10, 100]);
 
-  const moutainVBO = new VertexBufferObject(Mesh.gird(100), gl);
+  const moutainVBO = new VertexBufferObject(Mesh.wireFrame(Mesh.cute(0.5)), gl);
 
   mesh = new Scene.SimpleMesh({ position: moutainVBO });
   const transform = new Scene.Transform([mesh]);
@@ -39,16 +39,16 @@ function init() {
 
   scene.append(material);
 
-  initModeView();
   renderer.setAnimationLoop(animation);
   renderer.start();
   document.body.appendChild(renderer.domElement);
   setCanvasFullScreen(renderer.domElement, scene);
 
+  initModeView();
+
   function initModeView() {
-    const FAR_AWAY = 100;
-    mat4.translate(transform.wordMatrix, new Float32Array([-0.5 * FAR_AWAY, 0, -0.5 * FAR_AWAY]));
-    mat4.scale(transform.wordMatrix, new Float32Array([FAR_AWAY, 1, FAR_AWAY]));
+    const FAR_AWAY = 50;
+    mat4.scale(transform.wordMatrix, new Float32Array([FAR_AWAY, FAR_AWAY, FAR_AWAY]));
   }
 }
 

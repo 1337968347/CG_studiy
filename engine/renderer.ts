@@ -299,6 +299,7 @@ export class WebGLRenderer {
 
   render(scene: Scene.Graph, camera: Scene.Camera) {
     this.cameraController.tick(camera);
+    camera.use(scene);
     scene.draw(camera, this.gl);
   }
 }

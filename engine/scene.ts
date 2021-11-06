@@ -152,7 +152,6 @@ export class Camera {
   }
 
   use(scene: Graph) {
-    scene.pushUniforms();
     const position = new Float32Array(this.position);
 
     const project = this.getProjection();
@@ -161,7 +160,6 @@ export class Camera {
     mat4.multiply(project, wordView, mvp);
     scene.uniforms.projection = uniform.Mat4(mvp);
     scene.uniforms.eye = uniform.Vec3(position);
-    scene.popUniforms();
   }
 
   setProjection(near: number, far: number) {
