@@ -1,5 +1,5 @@
 import * as Scene from '../engine/scene';
-import Mesh, { makePerlinNoise } from '../engine/mesh';
+import Mesh from '../engine/mesh';
 import { WebGLRenderer } from '../engine/renderer';
 import { VertexBufferObject, setCanvasFullScreen } from '../engine/glUtils';
 import Loader from '../engine/loader';
@@ -15,7 +15,7 @@ let loader: Loader;
 let shaderManager: ShaderManager;
 const gl = renderer.getGLRenderContext();
 
-loader = new Loader('./shader/');
+loader = new Loader('../shader/');
 loader.load(['terrain.vert', 'terrain.frag', 'transform.glsl']);
 loader.setOnRendy(init);
 
