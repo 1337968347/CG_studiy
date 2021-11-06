@@ -28,7 +28,7 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: "./src/shader", to: "shader", noErrorOnMissing: true },
+        { from: "./shader", to: "shader", noErrorOnMissing: true },
         { from: "./src/assets", to: "assets", noErrorOnMissing: true },
       ],
     }),

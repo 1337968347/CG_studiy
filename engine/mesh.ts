@@ -10,15 +10,15 @@ export const gird = (size: number) => {
       buffer[i++] = y / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = x / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = y / size;
 
       buffer[i++] = (x + 1) / size;
@@ -26,7 +26,7 @@ export const gird = (size: number) => {
       buffer[i++] = (y + 1) / size;
 
       buffer[i++] = (x + 1) / size;
-      buffer[i++] = 0;
+      buffer[i++] = 0.5;
       buffer[i++] = y / size;
     }
   }
@@ -260,8 +260,9 @@ export const makePerlinNoise = (seed: number) => {
    */
   const getUVPixel = (u: number, v: number) => {
     // 当前晶格左上角的坐标
-    const xInt = ~~u;
-    const yInt = ~~v;
+    const xInt = ~~u & 255;
+    const yInt = ~~v & 255;
+
     // 小数部分
     let u1 = u - xInt;
     let v1 = v - yInt;
@@ -277,7 +278,7 @@ export const makePerlinNoise = (seed: number) => {
     const u2 = fade(u1);
     const v2 = fade(v1);
 
-    return lerp(lerp(g00, g10, u2), lerp(g01, g11, u2), v2);
+    return Math.abs(lerp(lerp(g00, g10, u2), lerp(g01, g11, u2), v2));
   };
 
   return { getUVPixel };

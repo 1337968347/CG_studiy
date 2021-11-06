@@ -108,7 +108,7 @@ export const vec3 = {
    * Returns:
    * dest if specified, vec otherwise
    */
-  subtract: function (vec, vec2, dest) {
+  subtract: function (vec, vec2, dest?) {
     if (!dest || vec == dest) {
       vec[0] -= vec2[0];
       vec[1] -= vec2[1];

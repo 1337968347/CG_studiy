@@ -55,8 +55,8 @@ export class CameraController {
 
   tick(camera: Scene.Camera) {
     const { x, y } = this.input.getOffsetFromElementCenter();
-    camera.y += x * 0.00008;
-    camera.x += y * 0.00008;
+    camera.y += x * 0.0001;
+    camera.x += y * 0.0001;
     const inverseRotation = camera.getInverseRotation();
     const direction = vec3.create();
     if (this.input.keys.W) {
