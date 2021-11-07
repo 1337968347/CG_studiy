@@ -26,11 +26,11 @@ const makeNoiseImg = (size: number) => {
   const imageArray = new Array(size * size * 4);
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      const p = noise.getUVPixel(i / 200, j / 200);
+      const p = noise.getUVPixel(i / 100, j / 100);
       greyImageArray[(i * size + j) * 4 + 0] = 0;
       greyImageArray[(i * size + j) * 4 + 1] = 0;
       greyImageArray[(i * size + j) * 4 + 2] = 0;
-      greyImageArray[(i * size + j) * 4 + 3] = 1 - p;
+      greyImageArray[(i * size + j) * 4 + 3] = p;
     }
   }
 
@@ -56,7 +56,6 @@ const makeNoiseImg = (size: number) => {
 
       const p = vec3.normalize(vec3.cross(v, h));
       const a = center[2];
-      vec3.scale(p, a, p);
       imageArray[(i * size + j) * 4 + 0] = p[0] * 255;
       imageArray[(i * size + j) * 4 + 1] = p[1] * 255;
       imageArray[(i * size + j) * 4 + 2] = p[2] * 255;
@@ -77,7 +76,7 @@ function init() {
   const terrainTexture = new Texture2D(makeNoiseImg(512), gl);
 
   camera = new Scene.Camera();
-  camera.position = new Float32Array([0, 300, 0]);
+  camera.position = new Float32Array([0, 50, 0]);
   camera.y = -30
 
   const moutainVBO = new VertexBufferObject(Mesh.gird(512), gl);
